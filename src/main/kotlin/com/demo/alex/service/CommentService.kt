@@ -30,6 +30,7 @@ class CommentService(
             .toList()
     }
 
+    @Transactional
     fun update(id: String): CommentResponse {
         val comment = commentRepository.findById(id).get()
         comment.liked = comment.liked.plus(1)
