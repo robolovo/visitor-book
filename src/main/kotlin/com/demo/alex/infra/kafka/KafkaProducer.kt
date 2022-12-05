@@ -1,5 +1,6 @@
 package com.demo.alex.infra.kafka
 
+import com.demo.alex.common.logger.AppLogger
 import com.demo.alex.controller.dto.CommentRequest
 import com.demo.alex.controller.event.LikeEvent
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -9,17 +10,14 @@ import org.springframework.stereotype.Component
 @Component
 class KafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, Any>,
-    private val mapper: ObjectMapper
 ) {
     fun send(comment: CommentRequest) {
-        println("kafka produce")
-        println(comment.toString())
+        AppLogger.info("kafka produce", comment.toString())
         kafkaTemplate.send("comment", comment)
     }
 
     fun send(likeEvent: LikeEvent) {
-        println("kafka produce")
-        println(likeEvent.toString())
+        AppLogger.info("kafka produce", likeEvent.toString())
         kafkaTemplate.send("like", likeEvent)
     }
 }

@@ -1,5 +1,6 @@
 package com.demo.alex.infra.redis
 
+import com.demo.alex.common.logger.AppLogger
 import com.demo.alex.domain.Comment
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -12,8 +13,7 @@ class DefaultMessageDelegate(
 ) : MessageDelegate {
 
     override fun handleMessage(message: String) {
-        println("redis subscribe")
-        println(message)
+        AppLogger.info("redis subscribe", message)
         messagingTemplate.convertAndSend(
             "/queue",
             mapper.readValue(message, Comment::class.java)

@@ -27,6 +27,7 @@ dependencies {
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 	implementation("io.lettuce:lettuce-core:6.1.8.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis:2.7.5")
+	implementation("io.github.microutils:kotlin-logging:2.1.21")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

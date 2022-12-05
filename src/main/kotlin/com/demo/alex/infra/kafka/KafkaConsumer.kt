@@ -1,5 +1,6 @@
 package com.demo.alex.infra.kafka
 
+import com.demo.alex.common.logger.AppLogger
 import com.demo.alex.controller.dto.CommentRequest
 import com.demo.alex.controller.event.LikeEvent
 import com.demo.alex.domain.Comment
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Component
 class KafkaConsumer(
     private val commentService: CommentService,
     private val redisTemplate: RedisTemplate<String, String>,
-    private val mapper: ObjectMapper
 ) {
 
     @KafkaListener(
@@ -22,8 +22,7 @@ class KafkaConsumer(
         containerFactory = "kafkaListenerContainerFactoryComment"
     )
     fun consume(message: CommentRequest) {
-        println("kafka consumer")
-        println(message.toString())
+        AppLogger.info("kafka consumer", message.toString())
         commentService.save(Comment.of(message))
     }
 
@@ -33,8 +32,7 @@ class KafkaConsumer(
         containerFactory = "kafkaListenerContainerFactoryLikeEvent"
     )
     fun consumer(likeEvent: LikeEvent) {
-        println("kafka consumer")
-        println(likeEvent.toString())
+        AppLogger.info("kafka consumer", likeEvent.toString())
         val comment = commentService.update(likeEvent.id)
         redisTemplate.convertAndSend("comment", comment)
     }

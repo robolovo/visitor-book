@@ -1,9 +1,12 @@
 package com.demo.alex.service
 
+import com.demo.alex.common.exception.AppException
+import com.demo.alex.common.logger.AppLogger
 import com.demo.alex.controller.dto.CommentResponse
 import com.demo.alex.domain.Comment
 import com.demo.alex.domain.CommentRepository
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,10 +20,9 @@ class CommentService(
 
     @Transactional
     fun save(comment: Comment) {
-        println("redis publish")
-        val savedComment = commentRepository.save(comment)
-        println(comment.toString())
-        redisTemplate.convertAndSend("comment", savedComment.toDto())
+        val dao = commentRepository.save(comment)
+        AppLogger.info("redis publish", dao.toString())
+        redisTemplate.convertAndSend("comment", dao.toDto())
     }
 
     fun read(): List<CommentResponse> {
@@ -32,8 +34,11 @@ class CommentService(
 
     @Transactional
     fun update(id: String): CommentResponse {
-        val comment = commentRepository.findById(id).get()
+        val comment = commentRepository.findByIdOrNull(id)
+            ?: throw AppException.NotFoundException("Not Found")
+
         comment.liked = comment.liked.plus(1)
+
         return commentRepository.save(comment)
             .toDto()
     }
