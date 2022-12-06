@@ -22,10 +22,6 @@ class DefaultMessageDelegate(
                 messagingTemplate.convertAndSend("/comment", comment)
             }
             "like" -> {
-                println("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                println("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                println("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                println(comment.toString())
                 messagingTemplate.convertAndSend("/like", comment)
             }
         }
