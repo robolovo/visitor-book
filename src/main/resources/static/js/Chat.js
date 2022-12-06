@@ -1,35 +1,43 @@
 function Comment() {
     let stompClient = null;
-    let messages = [];
+
+    const getMessage = (content, buttonId, buttonText) => {
+        return `
+           <td>
+               ${content}
+               <button type="button" class="btn-like" id="${buttonId}">${buttonText}</button>
+           </td>
+       `;
+    }
 
     const connect = () => {
         const sockJS = new SockJS("http://localhost:8080/ws");
         stompClient = Stomp.over(sockJS);
         stompClient.connect({}, () => {
-            stompClient.subscribe('/queue', (comment) => {
-                if (document.getElementById(`like-${JSON.parse(comment.body).id}`)) {
-                    const like = document.getElementById(`like-${JSON.parse(comment.body).id}`)
-                    like.innerHTML = `Like ${JSON.parse(comment.body).liked}`
-                } else {
-                    const tr = document.createElement('tr')
-                    const td = document.createElement('td')
-                    const btn = document.createElement('button')
-                    btn.id = `like-${JSON.parse(comment.body).id}`
-                    btn.type = 'button'
-                    btn.classList.add('btn-like')
-                    btn.innerHTML = `Like ${JSON.parse(comment.body).liked}`
-                    tr.append(td)
-                    tr.append(btn)
-                    td.append(JSON.parse(comment.body).content)
-                    document.querySelector("#messages").prepend(tr)
-                    document.querySelector(`#like-${JSON.parse(comment.body).id}`)
-                        .addEventListener("click", (event) => {
-                            const message = {
-                                id: event.target.id.substring(5),
-                            };
-                            stompClient.send("/app/likes", {}, JSON.stringify(message));
-                        })
-                }
+            stompClient.subscribe('/like', (comment) => {
+                const body = JSON.parse(comment.body)
+                const like = document.getElementById(`like-${body.id}`)
+                like.innerHTML = `Like ${body.liked}`
+            }),
+            stompClient.subscribe('/comment', (comment) => {
+                const body = JSON.parse(comment.body)
+                const content = body.content
+                const buttonId = `like-${body.id}`
+                const buttonText = `Like ${body.liked}`
+
+                const messages = document.querySelector("#messages")
+                const message = document.createElement("tr");
+                message.innerHTML = getMessage(content, buttonId, buttonText)
+                messages.prepend(message)
+
+                document.querySelector(`#${buttonId}`)
+                    .addEventListener("click", (event) => {
+                        const message = {
+                            id: event.target.id.substring(5),
+                            type: 'like'
+                        };
+                        stompClient.send("/app/likes", {}, JSON.stringify(message));
+                    })
             })
         });
     };
@@ -41,6 +49,7 @@ function Comment() {
             const message = {
                 content: msg,
                 timestamp: new Date(),
+                type: 'comment'
             };
             stompClient.send("/app/comments", {}, JSON.stringify(message));
         }
@@ -62,17 +71,14 @@ function Comment() {
     const drawComments = async () => {
         const comments = await getComments()
         comments.map((comment) => {
-            const tr = document.createElement('tr')
-            const td = document.createElement('td')
-            const btn = document.createElement('button')
-            btn.id = `like-${comment.id}`
-            btn.type = 'button'
-            btn.classList.add('btn-like')
-            btn.append(`Like ${comment.liked}`)
-            tr.append(td)
-            tr.append(btn)
-            td.append(comment.content)
-            document.querySelector("#messages").append(tr)
+            const content = comment.content
+            const buttonId = `like-${comment.id}`
+            const buttonText = `Like ${comment.liked}`
+
+            const messages = document.querySelector("#messages")
+            const message = document.createElement("tr");
+            message.innerHTML = getMessage(content, buttonId, buttonText)
+            messages.append(message)
         })
     }
 
@@ -85,6 +91,7 @@ function Comment() {
             likeBtn.addEventListener("click", (event) => {
                 const message = {
                     id: event.target.id.substring(5),
+                    type: "like"
                 };
                 stompClient.send("/app/likes", {}, JSON.stringify(message));
             })

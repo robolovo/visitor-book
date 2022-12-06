@@ -8,7 +8,7 @@ import org.springframework.web.socket.config.annotation.*
 @EnableWebSocketMessageBroker
 class WebSocketConfiguration : WebSocketMessageBrokerConfigurer {
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
-        registry.enableSimpleBroker("/queue")
+        registry.enableSimpleBroker("/comment", "/like")
         registry.setApplicationDestinationPrefixes("/app")
     }
 

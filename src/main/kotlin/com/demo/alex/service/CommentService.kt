@@ -10,7 +10,6 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-
 @Service
 @Transactional(readOnly = true)
 class CommentService(
@@ -22,12 +21,12 @@ class CommentService(
     fun save(comment: Comment) {
         val dao = commentRepository.save(comment)
         AppLogger.info("redis publish", dao.toString())
-        redisTemplate.convertAndSend("comment", dao.toDto())
+        redisTemplate.convertAndSend("comment", dao.toDto("comment"))
     }
 
     fun read(): List<CommentResponse> {
         return commentRepository.findAll()
-            .map { it.toDto() }
+            .map { it.toDto("comment") }
             .sortedBy { it.timestamp }.reversed()
             .toList()
     }
@@ -40,6 +39,6 @@ class CommentService(
         comment.liked = comment.liked.plus(1)
 
         return commentRepository.save(comment)
-            .toDto()
+            .toDto("like")
     }
 }

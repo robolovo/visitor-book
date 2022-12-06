@@ -6,5 +6,6 @@ data class CommentResponse(
     val id: String,
     val content: String?,
     val liked: Long,
-    val timestamp: ZonedDateTime?
+    val timestamp: ZonedDateTime?,
+    val type: String
 )

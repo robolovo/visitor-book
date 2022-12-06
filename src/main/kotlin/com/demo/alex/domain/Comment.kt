@@ -20,5 +20,6 @@ data class Comment(
         }
     }
 
-    fun toDto(): CommentResponse = CommentResponse(this.id!!, this.content, this.liked, this.timestamp)
+    fun toDto(type: String): CommentResponse =
+        CommentResponse(this.id!!, this.content, this.liked, this.timestamp, type)
 }
